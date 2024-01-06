@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"os"
 	"regexp"
 	"strings"
 	"text/template"
@@ -155,8 +156,15 @@ func (s *session) fire(id string) {
 
 	ask := out.String()
 	log.Debugf("ask: %s", ask)
+	apiKey := config.ReadConfig().APIKey
+	if apiKey == "" {
+		apiKey = os.Getenv("GEMINI_API_KEY")
+		if apiKey == "" {
+			panic("GEMINI_API_KEY is not defined")
+		}
+	}
 	cfg := gemini.GenerateTextConfig{
-		APIKey: config.ReadConfig().APIKey,
+		APIKey: apiKey,
 		Prompt: ask,
 	}
 	resp, err := gemini.GenerateText(ctx, cfg)
