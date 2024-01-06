@@ -12,10 +12,15 @@
 ### Deploy to Vercel
 
 1. Create a new [Vercel](https://vercel.com) project by importing this repo.
-2. Set "Root Directory" to `vercel`.
-3. Add environment variables:
-    * `GEMINI_API_KEY`: the value is your gemini APIKey
-    * `PASSWORD`: the value is an arbitrary string that used to protect your Vercel API endpoint
-4. Fill `https://<your project domain>.vercel.app/api/hcfy?pass=<your password>` to the hcfy setting.
+
+    1. Set "Framework Preset" to `Other`.
+    2. Set "Root Directory" to `vercel`.
+    3. Add environment variables:
+        * `GEMINI_API_KEY`: your gemini APIKey.
+        * `PASSWORD`: an arbitrary string that used to protect your Vercel API endpoint.
+
+    ![new vercel project](doc/new_vercel_project.png)
+
+4. Fill `https://<your project name>.vercel.app/api/hcfy?pass=<your password>` to the hcfy setting.
 
     ![hcfy setting](doc/hcfy_vercel.png)
