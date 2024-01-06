@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	maxConcurrent = 4
+	maxConcurrent = 100
 )
 
 var sem = make(chan string, maxConcurrent)

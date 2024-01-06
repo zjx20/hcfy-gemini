@@ -4,9 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/google/generative-ai-go/genai"
+	"github.com/zjx20/hcfy-gemini/util/httpclient"
 	"google.golang.org/api/option"
+	"google.golang.org/api/transport/http"
 )
 
 type GenerateTextConfig struct {
@@ -16,8 +19,14 @@ type GenerateTextConfig struct {
 }
 
 func GenerateText(ctx context.Context, cfg GenerateTextConfig) (string, error) {
-	// Access your API key as an environment variable (see "Set up your API key" above)
-	client, err := genai.NewClient(ctx, option.WithAPIKey(cfg.APIKey))
+	c := httpclient.CustomPingInterval(15 * time.Second)
+	apiTrans, err := http.NewTransport(ctx, c.Transport, option.WithAPIKey(cfg.APIKey))
+	if err != nil {
+		return "", fmt.Errorf("failed to create API transport: %w", err)
+	}
+	c.Transport = apiTrans
+
+	client, err := genai.NewClient(ctx, option.WithHTTPClient(c))
 	if err != nil {
 		log.Fatal(err)
 	}

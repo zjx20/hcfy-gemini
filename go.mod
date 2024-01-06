@@ -9,6 +9,7 @@ require (
 	github.com/go-chi/render v1.0.2
 	github.com/google/generative-ai-go v0.5.0
 	github.com/sirupsen/logrus v1.9.0
+	golang.org/x/net v0.19.0
 	google.golang.org/api v0.154.0
 )
 
@@ -33,7 +34,6 @@ require (
 	go.opentelemetry.io/otel/metric v1.21.0 // indirect
 	go.opentelemetry.io/otel/trace v1.21.0 // indirect
 	golang.org/x/crypto v0.16.0 // indirect
-	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/oauth2 v0.15.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
