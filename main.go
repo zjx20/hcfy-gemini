@@ -34,7 +34,7 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recover)
 
-	r.Post("/hcfyCustom", hcfy.Handle)
+	r.Post("/api/hcfy", hcfy.Handle)
 
 	l, err := net.Listen("tcp", ":7458")
 	if err != nil {
