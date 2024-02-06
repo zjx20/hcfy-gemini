@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"slices"
 	"strings"
 	"time"
@@ -191,6 +192,13 @@ func reconstructResult(req *translate.TranslateReq, subReqs []*subReq, results [
 }
 
 func Handle(w http.ResponseWriter, r *http.Request) {
+	if token := os.Getenv("PASSWORD"); token != "" {
+		if r.URL.Query().Get("pass") != token {
+			w.WriteHeader(http.StatusForbidden)
+			w.Write([]byte("bad password"))
+			return
+		}
+	}
 	req := &translate.TranslateReq{}
 	if err := render.Bind(r, req); err != nil {
 		log.Debugf("bad request: %s", err)

@@ -28,7 +28,9 @@ func init() {
 }
 
 func main() {
-	config.Init()
+	if noConf := os.Getenv("NO_CONFIG_FILE"); noConf == "" {
+		config.Init()
+	}
 	r := chi.NewRouter()
 
 	r.Use(middleware.Logger)
