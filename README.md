@@ -24,3 +24,25 @@
 4. Fill `https://<your project name>.vercel.app/api/hcfy?pass=<your password>` to the hcfy setting.
 
     ![hcfy setting](doc/hcfy_vercel.png)
+
+### Deploy with Docker
+
+1. Build image.
+
+    ```bash
+    docker build -t hcfy-gemini:latest .
+    ```
+
+2. Run.
+
+    ```bash
+    docker run -d \
+      --name hcfy-gemini \
+      -e GEMINI_API_KEY="<your gemini APIKey>" \
+      -e PASSWORD="<arbitrary string>" \
+      -p 7458:7458 \
+      --restart unless-stopped \
+      hcfy-gemini:latest
+    ```
+
+3. Fill `http://<server hostname>:7458/api/hcfy?pass=<PASSWORD>` to the hcfy setting.
