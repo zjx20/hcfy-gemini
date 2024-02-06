@@ -23,8 +23,9 @@ WORKDIR /
 
 COPY --from=build-stage /hcfy-gemini /hcfy-gemini
 
-EXPOSE 8080
+EXPOSE 7458
 
 USER nonroot:nonroot
+ENV NO_CONFIG_FILE=true
 
 ENTRYPOINT ["/hcfy-gemini"]
