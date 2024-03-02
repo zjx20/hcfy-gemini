@@ -6,6 +6,7 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/zjx20/hcfy-gemini/cjsfy"
 	"github.com/zjx20/hcfy-gemini/config"
 	"github.com/zjx20/hcfy-gemini/hcfy"
 	"github.com/zjx20/hcfy-gemini/util/middleware"
@@ -37,6 +38,7 @@ func main() {
 	r.Use(middleware.Recover)
 
 	r.Post("/api/hcfy", hcfy.Handle)
+	r.Post("/api/cjsfy", cjsfy.Handle)
 
 	l, err := net.Listen("tcp", ":7458")
 	if err != nil {

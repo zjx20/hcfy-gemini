@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zjx20/hcfy-gemini/config"
@@ -20,16 +21,18 @@ var (
 	endMarker     = "----end----"
 
 	singleDestTemplate = template.Must(template.New("single_dest").Parse(`
+这个请求的发起时间为 {{.ReqTime}}。
+
 你是一名翻译员，精通各国语言，尤其是英语和中文；同时你也精通各种计算机技术，习惯在 github 或 stackoverflow 等网站发表专业评论。
 请帮我完成一些翻译，我现在会描述输入和输出的规则，真正需要翻译的内容我会在末尾给出。
 
-输入要求：待翻译的内容被特殊标记包裹，每个段落以 "----begin----" 开始，以 "----end----" 结尾；可能存在多个段落。
+输入要求：待翻译的内容被特殊标记包裹，每个段落以 "----begin----" 开始，以 "----end----" 结尾；可能存在多个段落，段落之间的内容是相互独立的，不要混在一起翻译。
 
 输出要求：请按格式输出翻译结果，输出的第一行首先写从哪个语种翻译到哪个语种，格式为 "{source} -> {destination}"，语种用中文表达；紧接着输出每段的翻译，同样用 "----begin----" 和 "----end----" 包裹。
 
 翻译要求：请把内容翻译成{{index .Dest 0}}，采用意译的翻译手法，含义准确，使用常见的单词和简练的句式，符合母语人士的表达习惯。必要时可以采用多阶段翻译，例如先直译一遍，然后在直译的基础上适当调整文法表达，或根据内容含义重新组织输出，最后再做一次精炼。每个段落独立翻译，每个段落都要有对应的翻译输出，即输入有多少段，输出就要有多少段。
 
-另外请注意，有些段落可能整段都是一些无意义的 unicode 字符，这些内容可以直接输出，跳过翻译。再强调一遍，输出的段落数目要和输入一样，并且段落的顺序也要跟输入一致。
+另外请注意，有些段落可能整段都是一些无意义的 unicode 字符，这些内容可以直接输出，跳过翻译。
 
 这里给出一个输入输出的示例：
 
@@ -56,23 +59,27 @@ var (
 	►
 	----end----
 
-以下是待翻译内容：
+再强调一遍，输出的段落数目要和输入一样，顺序也要跟输入一致。
+
+以下是待翻译内容，请输出翻译后的内容，共有{{ len .Content }}个段落：
 {{- range $p := .Content  }}
 {{ $p }}
 {{- end }}
 	`))
 
 	multiDestTemplate = template.Must(template.New("multi_dest").Parse(`
+这个请求的发起时间为 {{.ReqTime}}。
+
 你是一名翻译员，精通各国语言，尤其是英语和中文；同时你也精通各种计算机技术，习惯在 github 或 stackoverflow 等网站发表专业评论。
 请帮我完成一些翻译，我现在会描述输入和输出的规则，真正需要翻译的内容我会在末尾给出。
 
-输入要求：待翻译的内容被特殊标记包裹，每个段落以 "----begin----" 开始，以 "----end----" 结尾；可能存在多个段落。
+输入要求：待翻译的内容被特殊标记包裹，每个段落以 "----begin----" 开始，以 "----end----" 结尾；可能存在多个段落，段落之间的内容是相互独立的，不要混在一起翻译。
 
 输出要求：请按格式输出翻译结果，输出的第一行首先写从哪个语种翻译到哪个语种，格式为 "{source} -> {destination}"，语种用中文表达；紧接着输出每段的翻译，同样用 "----begin----" 和 "----end----" 包裹。
 
 翻译要求：请把内容翻译成{{index .Dest 0}}。如果它已经是{{index .Dest 0}}，则把它翻译成{{index .Dest 1}}。采用意译的翻译手法，含义准确，使用常见的单词和简练的句式，符合母语人士的表达习惯。必要时可以采用多阶段翻译，例如先直译一遍，然后在直译的基础上适当调整文法表达，或根据内容含义重新组织输出，最后再做一次精炼。每个段落独立翻译，每个段落都要有对应的翻译输出，即输入有多少段，输出就要有多少段。
 
-另外请注意，有些段落可能整段都是一些无意义的 unicode 字符，这些内容可以直接输出，跳过翻译。再强调一遍，输出的段落数目要和输入一样，并且段落的顺序也要跟输入一致。
+另外请注意，有些段落可能整段都是一些无意义的 unicode 字符，这些内容可以直接输出，跳过翻译。
 
 这里给出一个输入输出的示例：
 
@@ -99,7 +106,9 @@ var (
 	►
 	----end----
 
-以下是待翻译内容：
+再强调一遍，输出的段落数目要和输入一样，顺序也要跟输入一致。
+
+以下是待翻译内容，请输出翻译后的内容，共有{{ len .Content }}个段落：
 {{- range $p := .Content  }}
 {{ $p }}
 {{- end }}
@@ -113,11 +122,11 @@ type TranslateResult struct {
 
 type session struct {
 	dest   []string
-	input  string
+	input  []string
 	respCh chan *TranslateResult
 }
 
-func newSession(dest []string, input string, respCh chan *TranslateResult) *session {
+func newSession(dest []string, input []string, respCh chan *TranslateResult) *session {
 	return &session{
 		dest:   dest,
 		input:  input,
@@ -143,19 +152,22 @@ func (s *session) fire(id string) {
 	}
 	out := bytes.NewBuffer(nil)
 	var content []string
-	for _, p := range strings.Split(s.input, "\n") {
+	for _, p := range s.input {
 		content = append(content, beginMarker+"\n"+p+"\n"+endMarker)
 	}
 	tmpl.Execute(out, struct {
+		ReqTime string
 		Dest    []string
 		Content []string
 	}{
+		ReqTime: time.Now().String(),
 		Dest:    s.dest,
 		Content: content,
 	})
 
 	ask := out.String()
-	log.Debugf("ask: %s", ask)
+	// log.Debugf("ask: %s", ask)
+	log.Debugf("content: %s", strings.Join(content, "\n"))
 	apiKey := config.ReadConfig().APIKey
 	if apiKey == "" {
 		apiKey = os.Getenv("GEMINI_API_KEY")
@@ -184,7 +196,7 @@ func (s *session) fire(id string) {
 		return
 	}
 
-	translated.Text = s.input
+	translated.Text = strings.Join(s.input, "\n")
 	s.respCh <- &TranslateResult{Resp: translated}
 }
 

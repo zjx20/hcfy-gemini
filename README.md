@@ -46,3 +46,18 @@
     ```
 
 3. Fill `http://<server hostname>:7458/api/hcfy?pass=<PASSWORD>` to the hcfy setting.
+
+### For Immersive Translate
+
+1. The `APIKEY` and `model` fields will not be used by `hcfy-gemini`, so you can fill in any values for them.
+2. You can increase the value of `Maximum Requests Per Second` appropriately.
+3. Fill `http://<server host>:<port>/api/cjsfy` to the `Custom API Endpoint` field.
+4. For the `Prompt`, fill in the following:
+
+    ```plaintext
+    {{to}}
+    -----splitter-----
+    {{text}}
+    ```
+
+![cjsfy setting](doc/cjsfy.png)

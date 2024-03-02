@@ -23,9 +23,9 @@ func (p *ProductionRule) validate() error {
 }
 
 type ConsumptionRule struct {
-	Threshold int
-	Wait      time.Duration
-	RuleID    int
+	RestThreshold int
+	Wait          time.Duration
+	RuleID        int
 }
 
 type AdaptiveTokenBucket struct {
@@ -129,7 +129,7 @@ func (b *AdaptiveTokenBucket) tryConsume() (consumed bool, noToken bool, wait ti
 	}
 	ruleID = -1
 	for _, rule := range b.consRules {
-		if curr >= rule.Threshold {
+		if curr >= rule.RestThreshold {
 			elapsed := time.Since(b.lastTs)
 			wait = time.Until(b.nextProduceTs) / time.Duration(curr)
 			if wait < 0 {

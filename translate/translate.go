@@ -33,6 +33,11 @@ func Translate(req *TranslateReq, ch chan *TranslateResult) {
 		log.Errorf("bad translate req: %+v", req)
 		return
 	}
-	s := newSession(req.Destination, req.Text, ch)
+	s := newSession(req.Destination, strings.Split(req.Text, "\n"), ch)
+	go goFire(s)
+}
+
+func Translate2(input []string, to string, ch chan *TranslateResult) {
+	s := newSession([]string{to}, input, ch)
 	go goFire(s)
 }
