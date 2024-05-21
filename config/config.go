@@ -22,6 +22,7 @@ var (
 
 type Config struct {
 	APIKey    string `json:"api_key"`
+	ModelName string `json:"model_name"`
 	UserAgent string `json:"user-agent"`
 	Debug     bool   `json:"debug"`
 	LogLevel  string `json:"log-level"`

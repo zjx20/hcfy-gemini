@@ -175,9 +175,14 @@ func (s *session) fire(id string) {
 			panic("GEMINI_API_KEY is not defined")
 		}
 	}
+	modelName := config.ReadConfig().ModelName
+	if modelName == "" {
+		modelName = os.Getenv("MODEL_NAME")
+	}
 	cfg := gemini.GenerateTextConfig{
-		APIKey: apiKey,
-		Prompt: ask,
+		APIKey:    apiKey,
+		ModelName: modelName,
+		Prompt:    ask,
 	}
 	resp, err := gemini.GenerateText(ctx, cfg)
 	if err != nil {

@@ -39,6 +39,7 @@
     docker run -d \
       --name hcfy-gemini \
       -e GEMINI_API_KEY="<your gemini APIKey>" \
+      -e MODEL_NAME="gemini-1.5-flash-latest" \
       -e PASSWORD="<arbitrary string>" \
       -p 7458:7458 \
       --restart unless-stopped \
