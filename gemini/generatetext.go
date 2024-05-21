@@ -26,7 +26,7 @@ func GenerateText(ctx context.Context, cfg GenerateTextConfig) (string, error) {
 	}
 	c.Transport = apiTrans
 
-	client, err := genai.NewClient(ctx, option.WithHTTPClient(c))
+	client, err := genai.NewClient(ctx, option.WithHTTPClient(c), option.WithAPIKey(cfg.APIKey))
 	if err != nil {
 		log.Fatal(err)
 	}
